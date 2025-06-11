@@ -1,0 +1,54 @@
+services:
+  web:
+    build: . 
+    container_name: loja_web
+    ports:
+      - "80:80"
+    volumes:
+    - ./web:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - loja_network
+    restart: always  
+    
+  mysql:
+    image: mysql:8.0
+    container_name: loja_mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: root123
+        MYSQL_DATABASE: loja_db
+        MYSQL_USER: loja_user
+        MYSQL_PASSWORD: loja123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - loja_network
+    restart: always
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: loja_phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - loja_network
+    restart: always
+volumes:
+    mysql_data:
+
+networks:
+    loja_network:
+      driver: bridge                      
+
+
